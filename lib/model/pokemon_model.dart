@@ -1,12 +1,12 @@
-class Pokemon {
+class PokemonModel {
   int? count;
   String? next;
   Null previous;
   List<Results>? results;
 
-  Pokemon({this.count, this.next, this.previous, this.results});
+  PokemonModel({this.count, this.next, this.previous, this.results});
 
-  Pokemon.fromJson(Map<String, dynamic> json) {
+  PokemonModel.fromJson(Map<String, dynamic> json) {
     count = json['count'];
     next = json['next'];
     previous = json['previous'];
