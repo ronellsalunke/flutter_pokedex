@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dex/data/response/status.dart';
+import 'package:flutter_dex/view/widgets/pokemon_list.dart';
 import 'package:flutter_dex/viewmodel/home_viewmodel.dart';
 import 'package:provider/provider.dart';
 
@@ -11,7 +12,7 @@ class HomeView extends StatefulWidget {
 }
 
 class _HomeViewState extends State<HomeView> {
-  HomeViewModel homeViewModel = HomeViewModel();
+  final HomeViewModel homeViewModel = HomeViewModel();
 
   @override
   void initState() {
@@ -21,27 +22,28 @@ class _HomeViewState extends State<HomeView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('PokeDex'),
-        centerTitle: true,
+    return ChangeNotifierProvider<HomeViewModel>(
+      create: (_) => homeViewModel,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('PokeDex'),
+          centerTitle: true,
+        ),
+        body: Consumer<HomeViewModel>(
+          builder: (context, value, _) {
+            switch (value.pokemonList.status) {
+              case Status.LOADING:
+                return const Center(child: CircularProgressIndicator());
+              case Status.ERROR:
+                return Center(child: Text(value.pokemonList.message ?? "Unknown error"));
+              case Status.COMPLETED:
+                return PokemonList(results: value.pokemonList.data?.results ?? []);
+              case null:
+                return const Center(child: Text('Whoops!'));
+            }
+          },
+        ),
       ),
-      body: ChangeNotifierProvider<HomeViewModel>(create: (BuildContext context) => homeViewModel, child: Consumer<HomeViewModel>(builder: (context, value, _){
-        switch(value.pokemonList.status){
-          case Status.LOADING:
-            return Center(child: CircularProgressIndicator());
-          case Status.ERROR:
-            return Center(child: Text(value.pokemonList.message.toString()));
-          case Status.COMPLETED:
-            return Center(
-              child: Text("There are ${value.pokemonList.data?.count.toString()} Pokemon!")
-            );
-          case null:
-            return Center(
-              child: Text('Whoops!'),
-            );
-        }
-      }),),
     );
   }
 }
