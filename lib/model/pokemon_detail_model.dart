@@ -7,6 +7,8 @@ class PokemonDetail {
     required this.sprites,
     required this.types,
     required this.weight,
+    required this.baseExperience,
+    required this.abilities,
   });
 
   final int? height;
@@ -16,6 +18,8 @@ class PokemonDetail {
   final Sprites? sprites;
   final List<Type> types;
   final int? weight;
+  final int? baseExperience;
+  final List<Ability> abilities;
 
   PokemonDetail copyWith({
     int? height,
@@ -25,6 +29,8 @@ class PokemonDetail {
     Sprites? sprites,
     List<Type>? types,
     int? weight,
+    int? baseExperience,
+    List<Ability>? abilities,
   }) {
     return PokemonDetail(
       height: height ?? this.height,
@@ -34,6 +40,8 @@ class PokemonDetail {
       sprites: sprites ?? this.sprites,
       types: types ?? this.types,
       weight: weight ?? this.weight,
+      baseExperience: baseExperience ?? this.baseExperience,
+      abilities: abilities ?? this.abilities,
     );
   }
 
@@ -51,6 +59,13 @@ class PokemonDetail {
               ? []
               : List<Type>.from(json["types"]!.map((x) => Type.fromJson(x))),
       weight: json["weight"],
+      baseExperience: json["base_experience"],
+      abilities:
+          json["abilities"] == null
+              ? []
+              : List<Ability>.from(
+                json["abilities"]!.map((x) => Ability.fromJson(x)),
+              ),
     );
   }
 
@@ -62,11 +77,13 @@ class PokemonDetail {
     "sprites": sprites?.toJson(),
     "types": types.map((x) => x.toJson()).toList(),
     "weight": weight,
+    "base_experience": baseExperience,
+    "abilities": abilities.map((x) => x.toJson()).toList(),
   };
 
   @override
   String toString() {
-    return "$height, $id, $name , $species, $sprites, $types, $weight, ";
+    return "$height, $id, $name , $species, $sprites, $types, $weight, $baseExperience";
   }
 }
 
@@ -135,5 +152,41 @@ class Type {
   @override
   String toString() {
     return "$slot, $type, ";
+  }
+}
+
+class Ability {
+  Ability({required this.ability, required this.isHidden, required this.slot});
+
+  final Species? ability;
+  final bool isHidden;
+  final int? slot;
+
+  Ability copyWith({Species? ability, bool? isHidden, int? slot}) {
+    return Ability(
+      ability: ability ?? this.ability,
+      isHidden: isHidden ?? this.isHidden,
+      slot: slot ?? this.slot,
+    );
+  }
+
+  factory Ability.fromJson(Map<String, dynamic> json) {
+    return Ability(
+      ability:
+          json["ability"] == null ? null : Species.fromJson(json["ability"]),
+      isHidden: json["is_hidden"],
+      slot: json["slot"],
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    "ability": ability?.toJson(),
+    "is_hidden": isHidden,
+    "slot": slot,
+  };
+
+  @override
+  String toString() {
+    return "$ability, hidden: $isHidden, slot: $slot";
   }
 }

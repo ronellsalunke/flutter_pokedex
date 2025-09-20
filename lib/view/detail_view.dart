@@ -10,65 +10,153 @@ class PokemonDetailView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(pokemon.name?.toTitleCase ?? 'Details'),
-        centerTitle: true,
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            /// Image
-            Center(
-              child: Hero(
-                tag: pokemon.name ?? '',
-                child: Image.network(
-                  pokemon.sprites?.frontDefault ??
-                      'https://via.placeholder.com/150',
-                  height: 160,
-                  width: 160,
-                  fit: BoxFit.contain,
-                  errorBuilder: (_, __, ___) =>
-                  const Icon(Icons.error, size: 80),
+    final typeNames = pokemon.types.map((t) => t.type?.name).toList();
+
+    return Container(
+      decoration: BoxDecoration(gradient: _typeGradient(typeNames)),
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(pokemon.name?.toTitleCase ?? 'Details'),
+          centerTitle: true,
+          backgroundColor: _typeColor(typeNames.first),
+        ),
+        backgroundColor: Colors.transparent,
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            children: [
+              /// Image
+              Center(
+                child: Hero(
+                  tag: pokemon.name ?? '',
+                  child: Image.network(
+                    pokemon.sprites?.frontDefault ??
+                        'https://via.placeholder.com/150',
+                    height: 160,
+                    width: 160,
+                    fit: BoxFit.contain,
+                    errorBuilder:
+                        (_, __, ___) => const Icon(Icons.error, size: 80),
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(height: 20),
+              const SizedBox(height: 20),
 
-            /// ID & Name
-            Text(
-              '#${pokemon.id ?? '-'}  ${pokemon.name?.toTitleCase ?? ''}',
-              style: const TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
+              /// ID & Name
+              Text(
+                '#${pokemon.id ?? '-'}  ${pokemon.name?.toTitleCase ?? ''}',
+                style: const TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
               ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 12),
+              const SizedBox(height: 12),
 
-            /// Types
-            Wrap(
-              spacing: 8,
-              children: pokemon.types
-                  .map((t) => Chip(
-                label: Text(t.type?.name?.toTitleCase ?? ''),
-                backgroundColor: _typeColor(t.type?.name),
-                labelStyle: const TextStyle(color: Colors.white),
-              ))
-                  .toList(),
-            ),
-            const SizedBox(height: 20),
-
-            /// Attributes
-            _AttributeRow(label: 'Height', value: '${pokemon.height ?? 0} dm'),
-            _AttributeRow(label: 'Weight', value: '${pokemon.weight ?? 0} hg'),
-            _AttributeRow(
-                label: 'Species',
-                value: pokemon.species?.name?.toTitleCase ?? 'Unknown'),
-          ],
+              /// Types
+              Wrap(
+                spacing: 8,
+                children:
+                    pokemon.types
+                        .map(
+                          (t) => Chip(
+                            label: Text(t.type?.name?.toTitleCase ?? ''),
+                            backgroundColor: _typeColor(t.type?.name),
+                            labelStyle: const TextStyle(color: Colors.white),
+                            side: BorderSide.none,
+                          ),
+                        )
+                        .toList(),
+              ),
+              const SizedBox(height: 20),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // const Text(
+                  //   "Abilities",
+                  //   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  // ),
+                  Wrap(
+                    spacing: 8,
+                    children:
+                        pokemon.abilities
+                            .map(
+                              (a) => Chip(
+                                label: Text(a.ability?.name?.toTitleCase ?? ''),
+                                backgroundColor:
+                                    a.isHidden
+                                        ? Colors.deepPurpleAccent
+                                        : _typeColor(a.ability?.name),
+                                labelStyle: const TextStyle(
+                                  color: Colors.white,
+                                ),
+                                side: BorderSide.none,
+                                avatar:
+                                    a.isHidden
+                                        ? Icon(Icons.star, color: Colors.white)
+                                        : null,
+                              ),
+                            )
+                            .toList(),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              Card(
+                // color: Colors.white.withOpacity(0.8),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Column(
+                    children: [
+                      _AttributeRow(
+                        label: 'Height',
+                        value: '${pokemon.height ?? 0} dm',
+                      ),
+                      _AttributeRow(
+                        label: 'Weight',
+                        value: '${pokemon.weight ?? 0} hg',
+                      ),
+                      _AttributeRow(
+                        label: 'Species',
+                        value: pokemon.species?.name?.toTitleCase ?? 'Unknown',
+                      ),
+                      _AttributeRow(
+                        label: "Base Experience",
+                        value: "${pokemon.baseExperience ?? 0}",
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
+    );
+  }
+
+  LinearGradient _typeGradient(List<String?> types) {
+    if (types.isEmpty) {
+      return const LinearGradient(colors: [Colors.grey, Colors.black26]);
+    }
+
+    if (types.length == 1) {
+      final color = _typeColor(types.first);
+      return LinearGradient(
+        colors: [color, color.withValues(alpha: 0.8)],
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+      );
+    }
+
+    final colors = types.map((t) => _typeColor(t)).toList();
+    return LinearGradient(
+      colors: colors,
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
     );
   }
 
@@ -96,8 +184,8 @@ class PokemonDetailView extends StatelessWidget {
         return Colors.pinkAccent;
       case 'poison':
         return Colors.deepPurple;
-        case 'flying':
-          return Colors.lightBlueAccent;
+      case 'flying':
+        return Colors.lightBlueAccent;
       case 'bug':
         return Colors.lightGreenAccent;
       case 'fighting':
@@ -106,7 +194,6 @@ class PokemonDetailView extends StatelessWidget {
         return Colors.brown;
       case 'ghost':
         return Colors.indigoAccent;
-
       default:
         return Colors.grey;
     }
@@ -126,8 +213,10 @@ class _AttributeRow extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label,
-              style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 16)),
+          Text(
+            label,
+            style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
+          ),
           Text(value, style: const TextStyle(fontSize: 16)),
         ],
       ),
