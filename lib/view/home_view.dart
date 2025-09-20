@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dex/data/response/status.dart';
+import 'package:flutter_dex/view/settings_view.dart';
 import 'package:flutter_dex/view/widgets/pokemon_list.dart';
 import 'package:flutter_dex/viewmodel/home_viewmodel.dart';
 import 'package:provider/provider.dart';
@@ -25,7 +26,21 @@ class _HomeViewState extends State<HomeView> {
     return ChangeNotifierProvider<HomeViewModel>(
       create: (_) => homeViewModel,
       child: Scaffold(
-        appBar: AppBar(title: const Text('PokeDex'), centerTitle: true),
+        appBar: AppBar(
+          title: const Text('PokeDex'),
+          centerTitle: true,
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.settings),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const SettingsView()),
+                );
+              },
+            ),
+          ],
+        ),
         body: Consumer<HomeViewModel>(
           builder: (context, value, _) {
             switch (value.pokemonList.status) {
