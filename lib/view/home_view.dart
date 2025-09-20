@@ -25,19 +25,19 @@ class _HomeViewState extends State<HomeView> {
     return ChangeNotifierProvider<HomeViewModel>(
       create: (_) => homeViewModel,
       child: Scaffold(
-        appBar: AppBar(
-          title: const Text('PokeDex'),
-          centerTitle: true,
-        ),
+        appBar: AppBar(title: const Text('PokeDex'), centerTitle: true),
         body: Consumer<HomeViewModel>(
           builder: (context, value, _) {
             switch (value.pokemonList.status) {
               case Status.LOADING:
                 return const Center(child: CircularProgressIndicator());
               case Status.ERROR:
-                return Center(child: Text(value.pokemonList.message ?? "Unknown error"));
+                return Center(
+                  child: Text(value.pokemonList.message ?? "Unknown error"),
+                );
               case Status.COMPLETED:
-                return PokemonList(results: value.pokemonList.data?.results ?? []);
+                return PokemonList(pokemonModel: value.pokemonList.data!);
+
               case null:
                 return const Center(child: Text('Whoops!'));
             }
