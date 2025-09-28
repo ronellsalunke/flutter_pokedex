@@ -3,6 +3,7 @@ import 'package:flutter_dex/view/home_view.dart';
 import 'package:flutter_dex/viewmodel/home_viewmodel.dart';
 import 'package:flutter_dex/viewmodel/theme_viewmodel.dart';
 import 'package:provider/provider.dart';
+import 'package:dynamic_color/dynamic_color.dart';
 
 void main(List<String> args) {
   runApp(const MyApp());
@@ -16,6 +17,26 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  ThemeData _buildTheme(Brightness brightness, bool dynamicColors, ColorScheme? dynamicColorScheme) {
+    ColorScheme colorScheme;
+    
+    if (dynamicColors && dynamicColorScheme != null) {
+      // use M3 dynamic colors when available A12+
+      colorScheme = dynamicColorScheme;
+    } else {
+      // fallback to default color scheme
+      colorScheme = ColorScheme.fromSeed(
+        seedColor: Colors.deepPurple,
+        brightness: brightness,
+      );
+    }
+    
+    return ThemeData(
+      colorScheme: colorScheme,
+      useMaterial3: true,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
@@ -25,19 +46,24 @@ class _MyAppState extends State<MyApp> {
       ],
       child: Consumer<ThemeViewModel>(
         builder: (context, themeViewModel, _) {
-          return MaterialApp(
-            debugShowCheckedModeBanner: false,
-            theme: ThemeData.light().copyWith(
-              colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-            ),
-            darkTheme: ThemeData.dark().copyWith(
-              colorScheme: ColorScheme.fromSeed(
-                seedColor: Colors.deepPurple,
-                brightness: Brightness.dark,
-              ),
-            ),
-            themeMode: themeViewModel.currentTheme,
-            home: const HomeView(),
+          return DynamicColorBuilder(
+            builder: (ColorScheme? lightDynamic, ColorScheme? darkDynamic) {
+              return MaterialApp(
+                debugShowCheckedModeBanner: false,
+                theme: _buildTheme(
+                  Brightness.light, 
+                  themeViewModel.dynamicColors, 
+                  lightDynamic,
+                ),
+                darkTheme: _buildTheme(
+                  Brightness.dark, 
+                  themeViewModel.dynamicColors, 
+                  darkDynamic,
+                ),
+                themeMode: themeViewModel.currentTheme,
+                home: const HomeView(),
+              );
+            },
           );
         },
       ),
