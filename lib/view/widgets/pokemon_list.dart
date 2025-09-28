@@ -106,7 +106,7 @@ class _PokemonListState extends State<PokemonList> {
                 ),
               ),
 
-              ElevatedButton(
+              FilledButton.tonal(
                 onPressed: () async {
                   final total = widget.pokemonModel.count ?? 0;
                   if (total > 0) {
@@ -171,7 +171,8 @@ class _PokemonListState extends State<PokemonList> {
               itemBuilder: (context, index) {
                 // Show loading indicator at the end
                 if (index == results.length) {
-                  return const Card(
+                  return Card(
+                    surfaceTintColor: Theme.of(context).colorScheme.surfaceTint,
                     child: Center(
                       child: Padding(
                         padding: EdgeInsets.all(16.0),
@@ -184,8 +185,8 @@ class _PokemonListState extends State<PokemonList> {
                 final pokemon = results[index];
                 // Extract Pokemon ID from URL for image
                 final pokemonId = _extractPokemonId(pokemon.url);
-
                 return Card(
+                  surfaceTintColor: Theme.of(context).colorScheme.surfaceTint,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
