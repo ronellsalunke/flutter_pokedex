@@ -72,10 +72,6 @@ class PokemonDetailView extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // const Text(
-                  //   "Abilities",
-                  //   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  // ),
                   Wrap(
                     spacing: 8,
                     children:
@@ -113,11 +109,11 @@ class PokemonDetailView extends StatelessWidget {
                     children: [
                       _AttributeRow(
                         label: 'Height',
-                        value: '${pokemon.height ?? 0} dm',
+                        value: '${pokemon.height?.toMetersFromDm ?? 0} m',
                       ),
                       _AttributeRow(
                         label: 'Weight',
-                        value: '${pokemon.weight ?? 0} hg',
+                        value: '${pokemon.weight?.toKgFromHg ?? 0} kg',
                       ),
                       _AttributeRow(
                         label: 'Species',
