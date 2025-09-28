@@ -1,7 +1,7 @@
 class PokemonModel {
   int? count;
   String? next;
-  Null previous;
+  String? previous;
   List<Results>? results;
 
   PokemonModel({this.count, this.next, this.previous, this.results});

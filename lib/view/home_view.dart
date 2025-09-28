@@ -51,7 +51,11 @@ class _HomeViewState extends State<HomeView> {
                   child: Text(value.pokemonList.message ?? "Unknown error"),
                 );
               case Status.COMPLETED:
-                return PokemonList(pokemonModel: value.pokemonList.data!);
+                return PokemonList(
+                  pokemonModel: value.pokemonList.data!,
+                  onLoadMore: value.loadMorePokemon,
+                  isLoadingMore: value.isLoadingMore,
+                );
 
               case null:
                 return const Center(child: Text('Whoops!'));

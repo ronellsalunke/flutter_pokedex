@@ -7,9 +7,13 @@ import 'package:flutter_dex/res/app_url.dart';
 class AppRepository {
   final BaseApiServices _apiServices = NetworkApiService();
 
-  Future<PokemonModel> fetchPokemonList() async {
+  Future<PokemonModel> fetchPokemonList({
+    int offset = 0,
+    int limit = 20,
+  }) async {
     try {
-      dynamic response = await _apiServices.getGetApiResponse(AppUrl.baseUrl);
+      final url = "${AppUrl.baseUrl}?offset=$offset&limit=$limit";
+      dynamic response = await _apiServices.getGetApiResponse(url);
       return response = PokemonModel.fromJson(response);
     } catch (e) {
       rethrow;
