@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_dex/viewmodel/theme_viewmodel.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SettingsView extends StatelessWidget {
   const SettingsView({super.key});
@@ -10,9 +11,7 @@ class SettingsView extends StatelessWidget {
     final themeViewModel = Provider.of<ThemeViewModel>(context);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Settings"),
-      ),
+      appBar: AppBar(title: const Text("Settings")),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -20,10 +19,7 @@ class SettingsView extends StatelessWidget {
           children: [
             const Text(
               "Theme",
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-              ),
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 16),
             SizedBox(
@@ -57,7 +53,9 @@ class SettingsView extends StatelessWidget {
             const SizedBox(height: 8),
             SwitchListTile(
               title: const Text("Enable Dynamic Colors"),
-              subtitle: const Text("Adapt to your wallpaper colors (Android 12+)"),
+              subtitle: const Text(
+                "Adapt to your wallpaper colors (Android 12+)",
+              ),
               value: themeViewModel.dynamicColors,
               onChanged: (value) {
                 themeViewModel.setDynamicColors(value);
@@ -69,6 +67,32 @@ class SettingsView extends StatelessWidget {
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
+            ),
+            const SizedBox(height: 16),
+            const Text(
+              "About",
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 16),
+            ListTile(
+              leading: Icon(
+                Icons.info,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+              title: const Text("Version"),
+              subtitle: const Text("1.0.0"),
+            ),
+            ListTile(
+              leading: Icon(
+                Icons.code,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+              title: const Text("Source Code"),
+              onTap: () {
+                launchUrl(
+                  Uri.parse("https://github.com/ronellsalunke/flutter_pokedex"),
+                );
+              },
             ),
           ],
         ),
