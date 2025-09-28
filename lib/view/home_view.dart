@@ -27,7 +27,7 @@ class _HomeViewState extends State<HomeView> {
       create: (_) => homeViewModel,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('PokeDex'),
+          title: const Text('FlutterDex'),
           centerTitle: true,
           actions: [
             IconButton(

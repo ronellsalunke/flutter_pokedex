@@ -49,6 +49,7 @@ class _MyAppState extends State<MyApp> {
           return DynamicColorBuilder(
             builder: (ColorScheme? lightDynamic, ColorScheme? darkDynamic) {
               return MaterialApp(
+                title: 'FlutterDex',
                 debugShowCheckedModeBanner: false,
                 theme: _buildTheme(
                   Brightness.light, 
