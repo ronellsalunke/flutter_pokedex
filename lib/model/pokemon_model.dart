@@ -1,50 +1,28 @@
-class PokemonModel {
-  int? count;
-  String? next;
-  String? previous;
-  List<Results>? results;
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-  PokemonModel({this.count, this.next, this.previous, this.results});
+part 'pokemon_model.freezed.dart';
+part 'pokemon_model.g.dart';
 
-  PokemonModel.fromJson(Map<String, dynamic> json) {
-    count = json['count'];
-    next = json['next'];
-    previous = json['previous'];
-    if (json['results'] != null) {
-      results = <Results>[];
-      json['results'].forEach((v) {
-        results!.add(Results.fromJson(v));
-      });
-    }
-  }
+@freezed
+abstract class PokemonModel with _$PokemonModel {
+  const factory PokemonModel({
+    int? count,
+    String? next,
+    String? previous,
+    List<Results>? results,
+  }) = _PokemonModel;
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['count'] = count;
-    data['next'] = next;
-    data['previous'] = previous;
-    if (results != null) {
-      data['results'] = results!.map((v) => v.toJson()).toList();
-    }
-    return data;
-  }
+  factory PokemonModel.fromJson(Map<String, dynamic> json) =>
+      _$PokemonModelFromJson(json);
 }
 
-class Results {
-  String? name;
-  String? url;
+@freezed
+abstract class Results with _$Results {
+  const factory Results({
+    String? name,
+    String? url,
+  }) = _Results;
 
-  Results({this.name, this.url});
-
-  Results.fromJson(Map<String, dynamic> json) {
-    name = json['name'];
-    url = json['url'];
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['name'] = name;
-    data['url'] = url;
-    return data;
-  }
+  factory Results.fromJson(Map<String, dynamic> json) =>
+      _$ResultsFromJson(json);
 }
