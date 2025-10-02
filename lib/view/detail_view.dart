@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-
 import 'package:flutter_dex/model/pokemon_detail_model.dart';
 import 'package:flutter_dex/utils/extensions.dart';
+import 'package:flutter_dex/view/widgets/stat_bar.dart';
 
 class PokemonDetailView extends StatelessWidget {
   final PokemonDetail pokemon;
@@ -10,149 +10,193 @@ class PokemonDetailView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final typeNames = pokemon.types.map((t) => t.type?.name).toList();
-
-    return Container(
-      decoration: BoxDecoration(gradient: _typeGradient(typeNames)),
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text(pokemon.name?.toTitleCase ?? 'Details'),
-          centerTitle: true,
-          backgroundColor: _typeColor(typeNames.first),
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          '#${pokemon.id ?? '-'}  ${pokemon.name?.toTitleCase ?? 'Details'}',
         ),
-        backgroundColor: Colors.transparent,
-        body: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            children: [
-              /// Image
-              Center(
-                child: Hero(
-                  tag: pokemon.name ?? '',
-                  child: Image.network(
-                    pokemon.sprites?.frontDefault ??
-                        'https://via.placeholder.com/150',
-                    height: 160,
-                    width: 160,
-                    fit: BoxFit.contain,
-                    errorBuilder:
-                        (_, __, ___) => const Icon(Icons.error, size: 80),
-                  ),
+        centerTitle: true,
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            /// Image
+            Center(
+              child: Hero(
+                tag: pokemon.name ?? '',
+                child: Image.network(
+                  pokemon.sprites?.frontDefault ??
+                      'https://via.placeholder.com/150',
+                  height: 160,
+                  width: 160,
+                  fit: BoxFit.contain,
+                  errorBuilder:
+                      (_, __, ___) => const Icon(Icons.error, size: 80),
                 ),
               ),
-              const SizedBox(height: 20),
+            ),
+            const SizedBox(height: 16),
 
-              /// ID & Name
-              Text(
-                '#${pokemon.id ?? '-'}  ${pokemon.name?.toTitleCase ?? ''}',
-                style: const TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
+            /// Types
+            Wrap(
+              spacing: 8,
+              children:
+                  pokemon.types
+                      .map(
+                        (t) => Chip(
+                          label: Text(t.type?.name?.toTitleCase ?? ''),
+                          backgroundColor: _typeColor(t.type?.name),
+                          labelStyle: const TextStyle(color: Colors.white),
+                          side: BorderSide.none,
+                        ),
+                      )
+                      .toList(),
+            ),
+            const SizedBox(height: 16),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Wrap(
+                  spacing: 8,
+                  children:
+                      pokemon.abilities
+                          .map(
+                            (a) => Chip(
+                              label: Text(a.ability?.name?.toTitleCase ?? ''),
+                              backgroundColor:
+                                  a.isHidden
+                                      ? Colors.deepPurpleAccent
+                                      : _typeColor(a.ability?.name),
+                              labelStyle: const TextStyle(color: Colors.white),
+                              side: BorderSide.none,
+                              avatar:
+                                  a.isHidden
+                                      ? Icon(Icons.star, color: Colors.white)
+                                      : null,
+                            ),
+                          )
+                          .toList(),
                 ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 12),
-
-              /// Types
-              Wrap(
-                spacing: 8,
-                children:
-                    pokemon.types
-                        .map(
-                          (t) => Chip(
-                            label: Text(t.type?.name?.toTitleCase ?? ''),
-                            backgroundColor: _typeColor(t.type?.name),
-                            labelStyle: const TextStyle(color: Colors.white),
-                            side: BorderSide.none,
+              ],
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: Card.outlined(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      side: BorderSide(
+                        style: BorderStyle.solid,
+                        width: 1,
+                        color: Theme.of(context).colorScheme.outlineVariant,
+                      ),
+                    ),
+                    child: Padding(
+                      padding: EdgeInsets.all(16),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Icon(Icons.straighten_outlined),
+                          const SizedBox(height: 16),
+                          Text(
+                            '${pokemon.height?.toMetersFromDm ?? 0} m',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
-                        )
-                        .toList(),
-              ),
-              const SizedBox(height: 20),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Wrap(
-                    spacing: 8,
-                    children:
-                        pokemon.abilities
-                            .map(
-                              (a) => Chip(
-                                label: Text(a.ability?.name?.toTitleCase ?? ''),
-                                backgroundColor:
-                                    a.isHidden
-                                        ? Colors.deepPurpleAccent
-                                        : _typeColor(a.ability?.name),
-                                labelStyle: const TextStyle(
-                                  color: Colors.white,
-                                ),
-                                side: BorderSide.none,
-                                avatar:
-                                    a.isHidden
-                                        ? Icon(Icons.star, color: Colors.white)
-                                        : null,
-                              ),
-                            )
-                            .toList(),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              Card(
-                // color: Colors.white.withOpacity(0.8),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: Column(
-                    children: [
-                      _AttributeRow(
-                        label: 'Height',
-                        value: '${pokemon.height?.toMetersFromDm ?? 0} m',
+                        ],
                       ),
-                      _AttributeRow(
-                        label: 'Weight',
-                        value: '${pokemon.weight?.toKgFromHg ?? 0} kg',
-                      ),
-                      _AttributeRow(
-                        label: 'Species',
-                        value: pokemon.species?.name?.toTitleCase ?? 'Unknown',
-                      ),
-                      _AttributeRow(
-                        label: "Base Experience",
-                        value: "${pokemon.baseExperience ?? 0}",
-                      ),
-                    ],
+                    ),
                   ),
                 ),
+                SizedBox(width: 16),
+                Expanded(
+                  child: Card.outlined(
+                    surfaceTintColor: Theme.of(context).colorScheme.surfaceTint,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      side: BorderSide(
+                        style: BorderStyle.solid,
+                        width: 1,
+                        color: Theme.of(context).colorScheme.outlineVariant,
+                      ),
+                    ),
+                    child: Padding(
+                      padding: EdgeInsets.all(16),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Icon(Icons.monitor_weight_outlined),
+                          const SizedBox(height: 16),
+                          Text(
+                            '${pokemon.weight?.toKgFromHg ?? 0} kg',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+
+            // stats
+            Card.outlined(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+                side: BorderSide(
+                  style: BorderStyle.solid,
+                  width: 1,
+                  color: Theme.of(context).colorScheme.outlineVariant,
+                ),
               ),
-            ],
-          ),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ...pokemon.stats.map(
+                      (stat) => StatBar(
+                        stat: stat,
+                        color: statValueColor(stat.baseStat),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          'Total',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                          ),
+                        ),
+                        Text(
+                          '${pokemon.stats.fold(0, (sum, stat) => sum + stat.baseStat)}',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
-    );
-  }
-
-  LinearGradient _typeGradient(List<String?> types) {
-    if (types.isEmpty) {
-      return const LinearGradient(colors: [Colors.grey, Colors.black26]);
-    }
-
-    if (types.length == 1) {
-      final color = _typeColor(types.first);
-      return LinearGradient(
-        colors: [color, color.withValues(alpha: 0.8)],
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-      );
-    }
-
-    final colors = types.map((t) => _typeColor(t)).toList();
-    return LinearGradient(
-      colors: colors,
-      begin: Alignment.topCenter,
-      end: Alignment.bottomCenter,
     );
   }
 
@@ -196,26 +240,15 @@ class PokemonDetailView extends StatelessWidget {
   }
 }
 
-class _AttributeRow extends StatelessWidget {
-  final String label;
-  final String value;
-
-  const _AttributeRow({required this.label, required this.value});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            label,
-            style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 16),
-          ),
-          Text(value, style: const TextStyle(fontSize: 16)),
-        ],
-      ),
-    );
+Color statValueColor(int value) {
+  double t = value / 255.0;
+  if (t < 0.25) {
+    return Color.lerp(Colors.red, Colors.orange, t * 4)!;
+  } else if (t < 0.5) {
+    return Color.lerp(Colors.orange, Colors.yellow, (t - 0.25) * 4)!;
+  } else if (t < 0.75) {
+    return Color.lerp(Colors.yellow, Colors.green, (t - 0.5) * 4)!;
+  } else {
+    return Colors.green;
   }
 }

@@ -13,6 +13,7 @@ abstract class PokemonDetail with _$PokemonDetail {
     Sprites? sprites,
     required List<Type> types,
     int? weight,
+    required List<Stat> stats,
     @JsonKey(name: "base_experience") int? baseExperience,
     required List<Ability> abilities,
   }) = _PokemonDetail;
@@ -63,4 +64,16 @@ abstract class Ability with _$Ability {
 
   factory Ability.fromJson(Map<String, dynamic> json) =>
       _$AbilityFromJson(json);
+}
+
+@freezed
+abstract class Stat with _$Stat {
+  const factory Stat({
+    @JsonKey(name: "base_stat") required int baseStat,
+    required int effort,
+    required Species stat,
+  }) = _Stat;
+
+  factory Stat.fromJson(Map<String, dynamic> json) =>
+      _$StatFromJson(json);
 }
