@@ -171,8 +171,15 @@ class _PokemonListState extends State<PokemonList> {
               itemBuilder: (context, index) {
                 // Show loading indicator at the end
                 if (index == results.length) {
-                  return Card(
-                    surfaceTintColor: Theme.of(context).colorScheme.surfaceTint,
+                  return Card.outlined(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      side: BorderSide(
+                        style: BorderStyle.solid,
+                        width: 1,
+                        color: Theme.of(context).colorScheme.outlineVariant,
+                      ),
+                    ),
                     child: Center(
                       child: Padding(
                         padding: EdgeInsets.all(16.0),
@@ -185,9 +192,13 @@ class _PokemonListState extends State<PokemonList> {
                 final pokemon = results[index];
                 // Extract Pokemon ID from URL for image
                 final pokemonId = _extractPokemonId(pokemon.url);
-                return Card(
-                  surfaceTintColor: Theme.of(context).colorScheme.surfaceTint,
+                return Card.outlined(
                   shape: RoundedRectangleBorder(
+                    side: BorderSide(
+                      style: BorderStyle.solid,
+                      width: 1,
+                      color: Theme.of(context).colorScheme.outlineVariant,
+                    ),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: InkWell(

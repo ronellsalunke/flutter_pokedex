@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dex/res/assets.dart';
 import 'package:flutter_dex/view/home_view.dart';
 import 'package:flutter_dex/viewmodel/home_viewmodel.dart';
 import 'package:flutter_dex/viewmodel/theme_viewmodel.dart';
@@ -34,6 +35,7 @@ class _MyAppState extends State<MyApp> {
     return ThemeData(
       colorScheme: colorScheme,
       useMaterial3: true,
+      fontFamily: Assets.font,
     );
   }
 

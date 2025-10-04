@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dex/data/response/status.dart';
+import 'package:flutter_dex/res/assets.dart';
 import 'package:flutter_dex/view/settings_view.dart';
 import 'package:flutter_dex/view/widgets/no_internet_view.dart';
 import 'package:flutter_dex/view/widgets/pokemon_list.dart';
 import 'package:flutter_dex/viewmodel/home_viewmodel.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 
 class HomeView extends StatefulWidget {
@@ -28,8 +30,17 @@ class _HomeViewState extends State<HomeView> {
       create: (_) => homeViewModel,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('FlutterDex'),
-          centerTitle: true,
+          title: Row(
+            children: [
+              SvgPicture.asset(
+                Assets.pokemonIcon,
+                fit: BoxFit.cover,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+              SizedBox(width: 8),
+              Text('FlutterDex', style: TextStyle(fontWeight: FontWeight.w700)),
+            ],
+          ),
           actions: [
             IconButton(
               icon: const Icon(Icons.settings),
@@ -48,7 +59,10 @@ class _HomeViewState extends State<HomeView> {
               case Status.LOADING:
                 return const Center(child: CircularProgressIndicator());
               case Status.ERROR:
-                if (value.pokemonList.message?.contains("No Internet Connection") ?? false) {
+                if (value.pokemonList.message?.contains(
+                      "No Internet Connection",
+                    ) ??
+                    false) {
                   return NoInternetView(onRefresh: value.fetchPokemonModelApi);
                 }
                 return Center(

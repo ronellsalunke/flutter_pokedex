@@ -14,6 +14,7 @@ class PokemonDetailView extends StatelessWidget {
       appBar: AppBar(
         title: Text(
           '#${pokemon.id ?? '-'}  ${pokemon.name?.toTitleCase ?? 'Details'}',
+          style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
       ),
