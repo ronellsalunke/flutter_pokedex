@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dex/model/pokemon_detail_model.dart';
+import 'package:flutter_dex/res/colors.dart';
 import 'package:flutter_dex/utils/extensions.dart';
 import 'package:flutter_dex/view/widgets/stat_bar.dart';
 
@@ -204,39 +205,41 @@ class PokemonDetailView extends StatelessWidget {
   Color _typeColor(String? typeName) {
     switch (typeName?.toLowerCase()) {
       case 'fire':
-        return Colors.redAccent;
+        return AppColors.fire;
       case 'water':
-        return Colors.blueAccent;
+        return AppColors.water;
       case 'grass':
-        return Colors.green;
+        return AppColors.grass;
       case 'electric':
-        return Colors.amber;
+        return AppColors.electric;
       case 'psychic':
-        return Colors.purple;
+        return AppColors.psychic;
       case 'rock':
-        return Colors.brown;
+        return AppColors.rock;
       case 'ice':
-        return Colors.cyan;
+        return AppColors.ice;
       case 'dragon':
-        return Colors.indigo;
+        return AppColors.dragon;
       case 'dark':
-        return Colors.black87;
+        return AppColors.dark;
       case 'fairy':
-        return Colors.pinkAccent;
+        return AppColors.fairy;
       case 'poison':
-        return Colors.deepPurple;
+        return AppColors.poison;
       case 'flying':
-        return Colors.lightBlueAccent;
+        return AppColors.flying;
       case 'bug':
-        return Colors.lightGreenAccent;
+        return AppColors.bug;
       case 'fighting':
-        return Colors.orange;
+        return AppColors.fighting;
       case 'ground':
-        return Colors.brown;
+        return AppColors.ground;
       case 'ghost':
-        return Colors.indigoAccent;
+        return AppColors.ghost;
+      case 'steel':
+        return AppColors.steel;
       default:
-        return Colors.grey;
+        return AppColors.normal;
     }
   }
 }
