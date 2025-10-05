@@ -7,6 +7,7 @@ import 'package:flutter_dex/view/widgets/pokemon_list.dart';
 import 'package:flutter_dex/viewmodel/home_viewmodel.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
+import 'package:material_loading_indicator/loading_indicator.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -57,7 +58,7 @@ class _HomeViewState extends State<HomeView> {
           builder: (context, value, _) {
             switch (value.pokemonList.status) {
               case Status.LOADING:
-                return const Center(child: CircularProgressIndicator());
+                return Center(child: LoadingIndicator());
               case Status.ERROR:
                 if (value.pokemonList.message?.contains(
                       "No Internet Connection",
