@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dex/data/cache/cache_service.dart';
 import 'package:flutter_dex/data/response/status.dart';
 import 'package:flutter_dex/res/assets.dart';
 import 'package:flutter_dex/view/settings_view.dart';
-import 'package:flutter_dex/view/widgets/no_internet_view.dart';
 import 'package:flutter_dex/view/widgets/pokemon_list.dart';
 import 'package:flutter_dex/viewmodel/home_viewmodel.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -17,12 +17,15 @@ class HomeView extends StatefulWidget {
 }
 
 class _HomeViewState extends State<HomeView> {
-  final HomeViewModel homeViewModel = HomeViewModel();
+  late final HomeViewModel homeViewModel;
 
   @override
   void initState() {
-    homeViewModel.fetchPokemonModelApi();
     super.initState();
+    homeViewModel = HomeViewModel(
+      Provider.of<CacheService>(context, listen: false),
+    );
+    homeViewModel.fetchPokemonModelApi();
   }
 
   @override
@@ -60,12 +63,12 @@ class _HomeViewState extends State<HomeView> {
               case Status.LOADING:
                 return Center(child: LoadingIndicator());
               case Status.ERROR:
-                if (value.pokemonList.message?.contains(
-                      "No Internet Connection",
-                    ) ??
-                    false) {
-                  return NoInternetView(onRefresh: value.fetchPokemonModelApi);
-                }
+                // if (value.pokemonList.message?.contains(
+                //       "No Internet Connection",
+                //     ) ??
+                //     false) {
+                //   return NoInternetView(onRefresh: value.fetchPokemonModelApi);
+                // }
                 return Center(
                   child: Text(value.pokemonList.message ?? "Unknown error"),
                 );

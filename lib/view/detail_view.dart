@@ -1,37 +1,44 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dex/data/cache/cache_service.dart';
 import 'package:flutter_dex/data/response/api_response.dart';
 import 'package:flutter_dex/data/response/status.dart';
 import 'package:flutter_dex/model/pokemon_detail_model.dart';
-import 'package:flutter_dex/res/colors.dart';
 import 'package:flutter_dex/utils/extensions.dart';
 import 'package:flutter_dex/view/widgets/stat_bar.dart';
 import 'package:flutter_dex/viewmodel/detail_viewmodel.dart';
 import 'package:material_loading_indicator/loading_indicator.dart';
 import 'package:provider/provider.dart';
 
+import '../res/colors.dart';
+
 class PokemonDetailView extends StatefulWidget {
   final PokemonDetail? pokemonDetail;
   final int? pokemonId;
 
   const PokemonDetailView({super.key, this.pokemonDetail, this.pokemonId})
-      : assert(pokemonDetail != null || pokemonId != null);
+    : assert(pokemonDetail != null || pokemonId != null);
 
   @override
   State<PokemonDetailView> createState() => _PokemonDetailViewState();
 }
 
 class _PokemonDetailViewState extends State<PokemonDetailView> {
-  final DetailViewModel detailViewModel = DetailViewModel();
+  late final DetailViewModel detailViewModel;
 
   @override
   void initState() {
+    super.initState();
+    detailViewModel = DetailViewModel(
+      Provider.of<CacheService>(context, listen: false),
+    );
     if (widget.pokemonDetail != null) {
-      detailViewModel.setPokemonDetail(ApiResponse.completed(widget.pokemonDetail!));
+      detailViewModel.setPokemonDetail(
+        ApiResponse.completed(widget.pokemonDetail!),
+      );
     } else {
       detailViewModel.fetchPokemonDetail(widget.pokemonId!);
     }
-    super.initState();
   }
 
   @override
@@ -77,36 +84,50 @@ class _PokemonDetailViewState extends State<PokemonDetailView> {
                           tag: pokemon.name ?? '',
                           // Add this to ensure smooth animation back
                           flightShuttleBuilder: (
-                              BuildContext flightContext,
-                              Animation<double> animation,
-                              HeroFlightDirection flightDirection,
-                              BuildContext fromHeroContext,
-                              BuildContext toHeroContext,
-                              ) {
+                            BuildContext flightContext,
+                            Animation<double> animation,
+                            HeroFlightDirection flightDirection,
+                            BuildContext fromHeroContext,
+                            BuildContext toHeroContext,
+                          ) {
                             return CachedNetworkImage(
-                              imageUrl: pokemon.sprites?.other?.officialArtwork?.frontDefault ??
+                              imageUrl:
+                                  pokemon
+                                      .sprites
+                                      ?.other
+                                      ?.officialArtwork
+                                      ?.frontDefault ??
                                   'https://via.placeholder.com/150',
                               height: 160,
                               width: 160,
                               fit: BoxFit.contain,
                               fadeInDuration: Duration.zero,
                               fadeOutDuration: Duration.zero,
-                              errorWidget: (context, url, error) => const Icon(Icons.error, size: 80),
+                              errorWidget:
+                                  (context, url, error) =>
+                                      const Icon(Icons.error, size: 80),
                             );
                           },
                           child: CachedNetworkImage(
-                            imageUrl: pokemon.sprites?.other?.officialArtwork?.frontDefault ??
+                            imageUrl:
+                                pokemon
+                                    .sprites
+                                    ?.other
+                                    ?.officialArtwork
+                                    ?.frontDefault ??
                                 'https://via.placeholder.com/150',
                             height: 160,
                             width: 160,
                             fit: BoxFit.contain,
                             fadeInDuration: Duration.zero,
-                            fadeOutDuration: Duration.zero, // Add this
-                            placeholder: (context, url) => SizedBox(
-                              height: 160,
-                              width: 160,
-                            ),
-                            errorWidget: (context, url, error) => const Icon(Icons.error, size: 80),
+                            fadeOutDuration: Duration.zero,
+                            // Add this
+                            placeholder:
+                                (context, url) =>
+                                    SizedBox(height: 160, width: 160),
+                            errorWidget:
+                                (context, url, error) =>
+                                    const Icon(Icons.error, size: 80),
                           ),
                         ),
                       ),
@@ -119,9 +140,13 @@ class _PokemonDetailViewState extends State<PokemonDetailView> {
                             pokemon.types
                                 .map(
                                   (t) => Chip(
-                                    label: Text(t.type?.name?.toTitleCase ?? ''),
+                                    label: Text(
+                                      t.type?.name?.toTitleCase ?? '',
+                                    ),
                                     backgroundColor: _typeColor(t.type?.name),
-                                    labelStyle: const TextStyle(color: Colors.white),
+                                    labelStyle: const TextStyle(
+                                      color: Colors.white,
+                                    ),
                                     side: BorderSide.none,
                                   ),
                                 )
@@ -137,16 +162,23 @@ class _PokemonDetailViewState extends State<PokemonDetailView> {
                                 pokemon.abilities
                                     .map(
                                       (a) => Chip(
-                                        label: Text(a.ability?.name?.toTitleCase ?? ''),
+                                        label: Text(
+                                          a.ability?.name?.toTitleCase ?? '',
+                                        ),
                                         backgroundColor:
                                             a.isHidden
                                                 ? Colors.deepPurpleAccent
                                                 : _typeColor(a.ability?.name),
-                                        labelStyle: const TextStyle(color: Colors.white),
+                                        labelStyle: const TextStyle(
+                                          color: Colors.white,
+                                        ),
                                         side: BorderSide.none,
                                         avatar:
                                             a.isHidden
-                                                ? Icon(Icons.star, color: Colors.white)
+                                                ? Icon(
+                                                  Icons.star,
+                                                  color: Colors.white,
+                                                )
                                                 : null,
                                       ),
                                     )
@@ -164,7 +196,10 @@ class _PokemonDetailViewState extends State<PokemonDetailView> {
                                 side: BorderSide(
                                   style: BorderStyle.solid,
                                   width: 1,
-                                  color: Theme.of(context).colorScheme.outlineVariant,
+                                  color:
+                                      Theme.of(
+                                        context,
+                                      ).colorScheme.outlineVariant,
                                 ),
                               ),
                               child: Padding(
@@ -190,13 +225,17 @@ class _PokemonDetailViewState extends State<PokemonDetailView> {
                           SizedBox(width: 16),
                           Expanded(
                             child: Card.outlined(
-                              surfaceTintColor: Theme.of(context).colorScheme.surfaceTint,
+                              surfaceTintColor:
+                                  Theme.of(context).colorScheme.surfaceTint,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),
                                 side: BorderSide(
                                   style: BorderStyle.solid,
                                   width: 1,
-                                  color: Theme.of(context).colorScheme.outlineVariant,
+                                  color:
+                                      Theme.of(
+                                        context,
+                                      ).colorScheme.outlineVariant,
                                 ),
                               ),
                               child: Padding(
@@ -246,7 +285,8 @@ class _PokemonDetailViewState extends State<PokemonDetailView> {
                               ),
                               const SizedBox(height: 16),
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   const Text(
                                     'Total',

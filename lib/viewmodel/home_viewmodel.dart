@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dex/data/cache/cache_service.dart';
 import 'package:flutter_dex/data/response/api_response.dart';
 import 'package:flutter_dex/model/pokemon_model.dart';
 import 'package:flutter_dex/model/pokemon_detail_model.dart';
 import 'package:flutter_dex/repository/app_repository.dart';
 
 class HomeViewModel with ChangeNotifier {
-  final _pokemonRepo = AppRepository();
+  final AppRepository _pokemonRepo;
+
+  HomeViewModel(CacheService cacheService)
+    : _pokemonRepo = AppRepository(cacheService);
 
   ApiResponse<PokemonModel> pokemonList = ApiResponse.loading();
   List<Results> allPokemonResults = [];
@@ -119,7 +123,10 @@ class HomeViewModel with ChangeNotifier {
   }
 
   Future<void> _fetchAllSprites() async {
-    final futures = allPokemonResults.map((p) => getSpriteUrl(_extractPokemonId(p.url!))).toList();
+    final futures =
+        allPokemonResults
+            .map((p) => getSpriteUrl(_extractPokemonId(p.url!)))
+            .toList();
     await Future.wait(futures);
   }
 
