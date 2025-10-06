@@ -13,8 +13,11 @@ class HomeViewModel with ChangeNotifier {
   bool hasMoreData = true;
   int currentOffset = 0;
   static const int pageSize = 20;
+  Map<int, String> spriteUrls = {};
+  Map<int, PokemonDetail> cachedDetails = {};
+  Map<int, Future<String>> spriteFutures = {};
 
-  setPokemonList(ApiResponse<PokemonModel> response) {
+  void setPokemonList(ApiResponse<PokemonModel> response) {
     pokemonList = response;
     notifyListeners();
   }
@@ -27,7 +30,7 @@ class HomeViewModel with ChangeNotifier {
 
     _pokemonRepo
         .fetchPokemonList(offset: currentOffset, limit: pageSize)
-        .then((value) {
+        .then((value) async {
           allPokemonResults.addAll(value.results ?? []);
           hasMoreData = value.next != null;
           currentOffset += pageSize;
@@ -39,6 +42,7 @@ class HomeViewModel with ChangeNotifier {
             results: allPokemonResults,
           );
           setPokemonList(ApiResponse.completed(updatedModel));
+          await _fetchAllSprites();
         })
         .onError((error, stackTrace) {
           setPokemonList(ApiResponse.error(error.toString()));
@@ -68,7 +72,7 @@ class HomeViewModel with ChangeNotifier {
       );
       setPokemonList(ApiResponse.completed(updatedModel));
     } catch (error) {
-      // maybe show snackbar or some other error handling
+      setPokemonList(ApiResponse.error(error.toString()));
     } finally {
       isLoadingMore = false;
       notifyListeners();
@@ -78,4 +82,46 @@ class HomeViewModel with ChangeNotifier {
   Future<PokemonDetail> fetchPokemonDetailById(int id) async {
     return await _pokemonRepo.fetchPokemonDetail(id);
   }
+
+  Future<String> getSpriteUrl(int id) {
+    if (spriteFutures.containsKey(id)) {
+      return spriteFutures[id]!;
+    }
+    final future = _fetchSpriteUrl(id);
+    spriteFutures[id] = future;
+    return future;
+  }
+
+  Future<String> _fetchSpriteUrl(int id) async {
+    try {
+      final detail = await _pokemonRepo.fetchPokemonDetail(id);
+      cachedDetails[id] = detail;
+      final url = detail.sprites?.other?.officialArtwork?.frontDefault ?? '';
+      spriteUrls[id] = url;
+      notifyListeners();
+      return url;
+    } catch (e) {
+      return '';
+    }
+  }
+
+  int _extractPokemonId(String url) {
+    final uri = Uri.parse(url);
+    final segments = uri.pathSegments;
+    if (segments.isNotEmpty) {
+      for (int i = segments.length - 1; i >= 0; i--) {
+        if (segments[i].isNotEmpty) {
+          return int.tryParse(segments[i]) ?? 1;
+        }
+      }
+    }
+    return 1;
+  }
+
+  Future<void> _fetchAllSprites() async {
+    final futures = allPokemonResults.map((p) => getSpriteUrl(_extractPokemonId(p.url!))).toList();
+    await Future.wait(futures);
+  }
+
+  PokemonDetail? getCachedDetail(int id) => cachedDetails[id];
 }

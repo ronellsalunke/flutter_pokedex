@@ -1,10 +1,9 @@
 import 'dart:math';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dex/model/pokemon_model.dart';
-import 'package:flutter_dex/res/app_url.dart';
 import 'package:flutter_dex/utils/extensions.dart';
 import 'package:flutter_dex/view/detail_view.dart';
-import 'package:flutter_dex/viewmodel/detail_viewmodel.dart';
 import 'package:flutter_dex/viewmodel/home_viewmodel.dart';
 import 'package:material_loading_indicator/loading_indicator.dart';
 import 'package:provider/provider.dart';
@@ -62,29 +61,43 @@ class _PokemonListState extends State<PokemonList> {
     return 1;
   }
 
-  Future<void> _openPokemonDetail(
-    BuildContext context,
-    String url,
-    String tag,
-  ) async {
-    showDialog(
-      context: context,
-      builder: (_) => Center(child: LoadingIndicator.contained()),
-      barrierDismissible: false,
-    );
-
-    try {
-      final detail = await PokemonService().fetchPokemonDetail(url);
-      Navigator.pop(context);
+  void _navigateToPokemonDetail(BuildContext context, int pokemonId) {
+    final homeViewModel = context.read<HomeViewModel>();
+    final cachedDetail = homeViewModel.getCachedDetail(pokemonId);
+    if (cachedDetail != null) {
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (_) => PokemonDetailView(pokemon: detail)),
+        MaterialPageRoute(builder: (_) => PokemonDetailView(pokemonDetail: cachedDetail)),
       );
-    } catch (e) {
-      Navigator.pop(context);
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Failed to load details: $e")));
+    } else {
+      // Show loading and fetch
+      showDialog(
+        context: context,
+        builder: (_) => Center(child: LoadingIndicator.contained()),
+        barrierDismissible: false,
+      );
+      homeViewModel.getSpriteUrl(pokemonId).then((_) {
+        if (!context.mounted) return;
+        Navigator.pop(context);
+        final detail = homeViewModel.getCachedDetail(pokemonId);
+        if (detail != null) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => PokemonDetailView(pokemonDetail: detail)),
+          );
+        } else {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => PokemonDetailView(pokemonId: pokemonId)),
+          );
+        }
+      }).catchError((error) {
+        if (!context.mounted) return;
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Failed to load details: $error")),
+        );
+      });
     }
   }
 
@@ -107,40 +120,14 @@ class _PokemonListState extends State<PokemonList> {
                 ),
               ),
 
-              FilledButton.tonal(
-                onPressed: () async {
-                  final total = widget.pokemonModel.count ?? 0;
-                  if (total > 0) {
-                    final randomId = Random().nextInt(total) + 1;
-                    showDialog(
-                      context: context,
-                      builder:
-                          (_) =>
-                              Center(child: LoadingIndicator.contained()),
-                      barrierDismissible: false,
-                    );
-
-                    try {
-                      final detail = await context
-                          .read<HomeViewModel>()
-                          .fetchPokemonDetailById(randomId);
-                      Navigator.pop(context);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => PokemonDetailView(pokemon: detail),
-                        ),
-                      );
-                    } catch (e) {
-                      Navigator.pop(context);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text("Failed to load random Pokémon: $e"),
-                        ),
-                      );
-                    }
-                  }
-                },
+               FilledButton.tonal(
+                 onPressed: () {
+                   final total = widget.pokemonModel.count ?? 0;
+                   if (total > 0) {
+                     final randomId = Random().nextInt(total) + 1;
+                     _navigateToPokemonDetail(context, randomId);
+                   }
+                 },
                 child: const Text("Random"),
               ),
             ],
@@ -204,16 +191,7 @@ class _PokemonListState extends State<PokemonList> {
                   ),
                   child: InkWell(
                     borderRadius: BorderRadius.circular(12),
-                    onTap: () {
-                      final detailUrl = pokemon.url;
-                      if (detailUrl != null) {
-                        _openPokemonDetail(
-                          context,
-                          detailUrl,
-                          pokemon.name ?? '',
-                        );
-                      }
-                    },
+                     onTap: () => _navigateToPokemonDetail(context, pokemonId),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -223,18 +201,69 @@ class _PokemonListState extends State<PokemonList> {
                           borderRadius: BorderRadius.circular(8),
                           child: Hero(
                             tag: pokemon.name ?? '',
-                            child: Image.network(
-                              "${AppUrl.thumbnailUrl}/$pokemonId.png",
-                              width: 80,
-                              height: 80,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) {
-                                return Container(
+                            // Add this flightShuttleBuilder to use a consistent image during animation
+                            flightShuttleBuilder: (
+                                BuildContext flightContext,
+                                Animation<double> animation,
+                                HeroFlightDirection flightDirection,
+                                BuildContext fromHeroContext,
+                                BuildContext toHeroContext,
+                                ) {
+                              final homeViewModel = context.read<HomeViewModel>();
+                              final spriteUrl = homeViewModel.spriteUrls[pokemonId];
+
+                              if (spriteUrl != null && spriteUrl.isNotEmpty) {
+                                return CachedNetworkImage(
+                                  imageUrl: spriteUrl,
                                   width: 80,
                                   height: 80,
-                                  color: Colors.grey[300],
-                                  child: const Icon(Icons.image_not_supported),
+                                  fit: BoxFit.contain,
+                                  fadeInDuration: Duration.zero,
+                                  fadeOutDuration: Duration.zero,
+                                  errorWidget: (context, url, error) => SizedBox(
+                                    width: 80,
+                                    height: 80,
+                                    child: const Icon(Icons.image_not_supported),
+                                  ),
                                 );
+                              }
+                              return SizedBox(
+                                width: 80,
+                                height: 80,
+                                child: LoadingIndicator(),
+                              );
+                            },
+                            child: Builder(
+                              builder: (context) {
+                                final homeViewModel = context.read<HomeViewModel>();
+                                final spriteUrl = homeViewModel.spriteUrls[pokemonId];
+                                if (spriteUrl != null && spriteUrl.isNotEmpty) {
+                                  return CachedNetworkImage(
+                                    imageUrl: spriteUrl,
+                                    width: 80,
+                                    height: 80,
+                                    fit: BoxFit.cover,
+                                    fadeInDuration: Duration.zero,
+                                    fadeOutDuration: Duration.zero, // Add this
+                                    // Add placeholder to prevent loading indicator flash
+                                    placeholder: (context, url) => SizedBox(
+                                      width: 80,
+                                      height: 80,
+                                    ),
+                                    errorWidget: (context, url, error) => SizedBox(
+                                      width: 80,
+                                      height: 80,
+                                      child: const Icon(Icons.image_not_supported),
+                                    ),
+                                  );
+                                } else {
+                                  homeViewModel.getSpriteUrl(pokemonId);
+                                  return SizedBox(
+                                    width: 80,
+                                    height: 80,
+                                    child: LoadingIndicator(),
+                                  );
+                                }
                               },
                             ),
                           ),
