@@ -6,6 +6,7 @@ import 'package:flutter_dex/utils/extensions.dart';
 import 'package:flutter_dex/view/detail_view.dart';
 import 'package:flutter_dex/viewmodel/detail_viewmodel.dart';
 import 'package:flutter_dex/viewmodel/home_viewmodel.dart';
+import 'package:material_loading_indicator/loading_indicator.dart';
 import 'package:provider/provider.dart';
 
 class PokemonList extends StatefulWidget {
@@ -68,7 +69,7 @@ class _PokemonListState extends State<PokemonList> {
   ) async {
     showDialog(
       context: context,
-      builder: (_) => const Center(child: CircularProgressIndicator()),
+      builder: (_) => Center(child: LoadingIndicator.contained()),
       barrierDismissible: false,
     );
 
@@ -115,7 +116,7 @@ class _PokemonListState extends State<PokemonList> {
                       context: context,
                       builder:
                           (_) =>
-                              const Center(child: CircularProgressIndicator()),
+                              Center(child: LoadingIndicator.contained()),
                       barrierDismissible: false,
                     );
 
@@ -183,7 +184,7 @@ class _PokemonListState extends State<PokemonList> {
                     child: Center(
                       child: Padding(
                         padding: EdgeInsets.all(16.0),
-                        child: CircularProgressIndicator(),
+                        child: LoadingIndicator(),
                       ),
                     ),
                   );
