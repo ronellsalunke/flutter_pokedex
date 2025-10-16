@@ -1,14 +1,31 @@
-import 'dart:convert';
+import 'package:flutter/material.dart';
+import 'package:flutter_dex/data/cache/cache_service.dart';
+import 'package:flutter_dex/data/response/api_response.dart';
 import 'package:flutter_dex/model/pokemon_detail_model.dart';
-import 'package:http/http.dart' as http;
+import 'package:flutter_dex/repository/app_repository.dart';
 
-class PokemonService {
-  Future<PokemonDetail> fetchPokemonDetail(String url) async {
-    final response = await http.get(Uri.parse(url));
-    if (response.statusCode == 200) {
-      return PokemonDetail.fromJson(json.decode(response.body));
-    } else {
-      throw Exception("Failed to load Pokémon details");
-    }
+class DetailViewModel with ChangeNotifier {
+  final AppRepository _pokemonRepo;
+
+  DetailViewModel(CacheService cacheService)
+    : _pokemonRepo = AppRepository(cacheService);
+
+  ApiResponse<PokemonDetail> pokemonDetail = ApiResponse.loading();
+
+  void setPokemonDetail(ApiResponse<PokemonDetail> response) {
+    pokemonDetail = response;
+    notifyListeners();
+  }
+
+  Future<void> fetchPokemonDetail(int id) async {
+    setPokemonDetail(ApiResponse.loading());
+    _pokemonRepo
+        .fetchPokemonDetail(id)
+        .then((value) {
+          setPokemonDetail(ApiResponse.completed(value));
+        })
+        .onError((error, stackTrace) {
+          setPokemonDetail(ApiResponse.error(error.toString()));
+        });
   }
 }

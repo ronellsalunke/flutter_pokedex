@@ -37,10 +37,31 @@ abstract class Species with _$Species {
 abstract class Sprites with _$Sprites {
   const factory Sprites({
     @JsonKey(name: "front_default") String? frontDefault,
+    @JsonKey(name: "other") OtherSprites? other,
   }) = _Sprites;
 
   factory Sprites.fromJson(Map<String, dynamic> json) =>
       _$SpritesFromJson(json);
+}
+
+@freezed
+abstract class OtherSprites with _$OtherSprites {
+  const factory OtherSprites({
+    @JsonKey(name: "official-artwork") OfficialArtwork? officialArtwork,
+  }) = _OtherSprites;
+
+  factory OtherSprites.fromJson(Map<String, dynamic> json) =>
+      _$OtherSpritesFromJson(json);
+}
+
+@freezed
+abstract class OfficialArtwork with _$OfficialArtwork {
+  const factory OfficialArtwork({
+    @JsonKey(name: "front_default") String? frontDefault,
+  }) = _OfficialArtwork;
+
+  factory OfficialArtwork.fromJson(Map<String, dynamic> json) =>
+      _$OfficialArtworkFromJson(json);
 }
 
 @freezed
