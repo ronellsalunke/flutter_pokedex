@@ -4,7 +4,7 @@ import 'package:hive_ce/hive.dart';
 class CacheService {
   static const String pokemonListBox = 'pokemon_list';
   static const String pokemonDetailBox = 'pokemon_detail';
-  static const Duration cacheDuration = Duration(hours: 48);
+  static const Duration cacheDuration = Duration(days: 30);
 
   late Box<String> _pokemonListBox;
   late Box<String> _pokemonDetailBox;
